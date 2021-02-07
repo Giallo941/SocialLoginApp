@@ -6,15 +6,36 @@
 //
 
 import UIKit
+import FBSDKCoreKit
+import Firebase
+import GoogleSignIn
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
-
+    
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        if #available(iOS 13.0, *) {
+            
+        } else {
+            FirebaseApp.configure()
+        }
+        
+        ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
+        GIDSignIn.sharedInstance().clientID = "1024593911581-nmbbal8a5q1iu59p5b5qo9sng0b0ee2m.apps.googleusercontent.com"
+        
         return true
+    }
+    
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        ApplicationDelegate.shared.application(app,
+                                               open: url,
+                                               sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String,
+                                               annotation: options[UIApplication.OpenURLOptionsKey.annotation])
     }
 
     // MARK: UISceneSession Lifecycle
