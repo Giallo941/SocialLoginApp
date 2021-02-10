@@ -19,14 +19,27 @@ class ViewController: UIViewController {
         return view
     }()
     
-    private lazy var facebookButton: FBLoginButton = {
-        let button = FBLoginButton()
-        button.delegate = self
+    private lazy var facebookButton: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 5
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.black.cgColor
+        button.setTitle("Log in with Facebook", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.addTarget(self, action: #selector(facebookLoginButtonClicked), for: .touchUpInside)
         return button
     }()
     
-    private lazy var googleButton: GIDSignInButton = {
-        let button = GIDSignInButton()
+    private lazy var googleButton: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 5
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.black.cgColor
+        button.setTitle("Log in with Google", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.addTarget(self, action: #selector(googleLoginButtonClicked), for: .touchUpInside)
         return button
     }()
     
@@ -54,16 +67,35 @@ class ViewController: UIViewController {
             maker.centerY.equalToSuperview().offset(100)
             maker.left.equalToSuperview().offset(22)
             maker.right.equalToSuperview().offset(-22)
+            maker.height.equalTo(50)
         }
         
         view.addSubview(googleButton)
         googleButton.snp.makeConstraints { maker in
             maker.centerX.equalToSuperview()
-            maker.centerY.equalToSuperview().offset(150)
+            maker.centerY.equalToSuperview().offset(160)
             maker.left.equalToSuperview().offset(20)
             maker.right.equalToSuperview().offset(-20)
+            maker.height.equalTo(50)
         }
 
+    }
+
+}
+
+extension ViewController {
+    
+    @objc func facebookLoginButtonClicked() {
+        let loginManager = LoginManager()
+        loginManager.logIn(permissions: ["public_profile", "email"], from: self) { result, error in
+            if let token = result?.token?.tokenString {
+                self.facebookUserInfo(with: token)
+                let controller = HomeViewController()
+//                controller.modalPresentationStyle = .fullScreen
+//                self.present(controller, animated: true)
+                self.navigationController?.pushViewController(controller, animated: true)
+            }
+        }
     }
     
     func facebookUserInfo(with token: String) {
@@ -81,27 +113,14 @@ class ViewController: UIViewController {
             }
         }
     }
-
-}
-
-extension ViewController: LoginButtonDelegate {
-    
-    func loginButton(_ loginButton: FBLoginButton, didCompleteWith result: LoginManagerLoginResult?, error: Error?) {
-        if let token = result?.token?.tokenString {
-            facebookUserInfo(with: token)
-            let controller = HomeViewController()
-            controller.modalPresentationStyle = .fullScreen
-            self.present(controller, animated: true)
-        }
-    }
-    
-    func loginButtonDidLogOut(_ loginButton: FBLoginButton) {
-        
-    }
     
 }
 
 extension ViewController: GIDSignInDelegate {
+    
+    @objc func googleLoginButtonClicked() {
+        GIDSignIn.sharedInstance()?.signIn()
+    }
     
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
         if let err = error {
@@ -123,8 +142,9 @@ extension ViewController: GIDSignInDelegate {
             print("Successfully logged into Firebase with Google", uid)
             
             let controller = HomeViewController()
-            controller.modalPresentationStyle = .fullScreen
-            self.present(controller, animated: true)
+//            controller.modalPresentationStyle = .fullScreen
+//            self.present(controller, animated: true)
+            self.navigationController?.pushViewController(controller, animated: true)
         }
     }
     
