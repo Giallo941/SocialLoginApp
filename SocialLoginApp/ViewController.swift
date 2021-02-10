@@ -86,14 +86,16 @@ class ViewController: UIViewController {
 extension ViewController {
     
     @objc func facebookLoginButtonClicked() {
-        let loginManager = LoginManager()
-        loginManager.logIn(permissions: ["public_profile", "email"], from: self) { result, error in
-            if let token = result?.token?.tokenString {
-                self.facebookUserInfo(with: token)
-                let controller = HomeViewController()
-//                controller.modalPresentationStyle = .fullScreen
-//                self.present(controller, animated: true)
-                self.navigationController?.pushViewController(controller, animated: true)
+        facebookButton.press { finished in
+            let loginManager = LoginManager()
+            loginManager.logIn(permissions: ["public_profile", "email"], from: self) { result, error in
+                if let token = result?.token?.tokenString {
+                    self.facebookUserInfo(with: token)
+                    let controller = HomeViewController()
+    //                controller.modalPresentationStyle = .fullScreen
+    //                self.present(controller, animated: true)
+                    self.navigationController?.pushViewController(controller, animated: true)
+                }
             }
         }
     }
@@ -119,7 +121,9 @@ extension ViewController {
 extension ViewController: GIDSignInDelegate {
     
     @objc func googleLoginButtonClicked() {
-        GIDSignIn.sharedInstance()?.signIn()
+        googleButton.press { finished in
+            GIDSignIn.sharedInstance()?.signIn()
+        }
     }
     
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
