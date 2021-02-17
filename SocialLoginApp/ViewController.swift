@@ -13,10 +13,18 @@ import GoogleSignIn
 
 class ViewController: UIViewController {
     
-    private lazy var container: UIView = {
-        let view = UIView()
-        view.backgroundColor = .clear
-        return view
+    private lazy var loader = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+    
+    private lazy var googleButton: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 5
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.black.cgColor
+        button.setTitle("Log in with Google", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.addTarget(self, action: #selector(googleLoginButtonClicked), for: .touchUpInside)
+        return button
     }()
     
     private lazy var facebookButton: UIButton = {
@@ -31,35 +39,31 @@ class ViewController: UIViewController {
         return button
     }()
     
-    private lazy var googleButton: UIButton = {
-        let button = UIButton()
-        button.backgroundColor = .white
-        button.layer.cornerRadius = 5
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.black.cgColor
-        button.setTitle("Log in with Google", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.addTarget(self, action: #selector(googleLoginButtonClicked), for: .touchUpInside)
-        return button
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        view.backgroundColor = .white
-        
-        GIDSignIn.sharedInstance()?.presentingViewController = self
-        GIDSignIn.sharedInstance().delegate = self
-        
-        if let token = AccessToken.current, !token.isExpired {
-            let token = token.tokenString
-            facebookUserInfo(with: token)
-        } else {
-            makeUI()
-        }
+        makeUI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setupUI()
     }
     
     private func makeUI() {
+        
+        view.backgroundColor = .white
+        loader.center = view.center
+        loader.style = .large
+        loader.color = .gray
+        view.addSubview(loader)
+        
+        view.addSubview(googleButton)
+        googleButton.snp.makeConstraints { maker in
+            maker.centerX.equalToSuperview()
+            maker.centerY.equalToSuperview().offset(160)
+            maker.left.equalToSuperview().offset(20)
+            maker.right.equalToSuperview().offset(-20)
+            maker.height.equalTo(50)
+        }
         
         view.addSubview(facebookButton)
         facebookButton.snp.makeConstraints { maker in
@@ -70,17 +74,35 @@ class ViewController: UIViewController {
             maker.height.equalTo(50)
         }
         
-        view.addSubview(googleButton)
-        googleButton.snp.makeConstraints { maker in
-            maker.centerX.equalToSuperview()
-            maker.centerY.equalToSuperview().offset(160)
-            maker.left.equalToSuperview().offset(20)
-            maker.right.equalToSuperview().offset(-20)
-            maker.height.equalTo(50)
-        }
-
+        googleButton.isHidden = true
+        facebookButton.isHidden = true
     }
-
+    
+    private func setupUI() {
+        loader.isHidden = false
+        loader.startAnimating()
+        
+        GIDSignIn.sharedInstance()?.presentingViewController = self
+        GIDSignIn.sharedInstance().delegate = self
+        
+        if let accessToken = AccessToken.current, !accessToken.isExpired {
+            let token = accessToken.tokenString
+            facebookUserInfo(with: token, completion: { user in
+                let controller = HomeViewController()
+                controller.user = user
+                self.navigationController?.pushViewController(controller, animated: true)
+            })
+        } else {
+            if(GIDSignIn.sharedInstance().hasPreviousSignIn()) {
+                GIDSignIn.sharedInstance()?.restorePreviousSignIn()
+            } else {
+                loader.isHidden = true
+                facebookButton.isHidden = false
+                googleButton.isHidden = false
+            }
+        }
+    }
+    
 }
 
 extension ViewController {
@@ -90,17 +112,17 @@ extension ViewController {
             let loginManager = LoginManager()
             loginManager.logIn(permissions: ["public_profile", "email"], from: self) { result, error in
                 if let token = result?.token?.tokenString {
-                    self.facebookUserInfo(with: token)
-                    let controller = HomeViewController()
-    //                controller.modalPresentationStyle = .fullScreen
-    //                self.present(controller, animated: true)
-                    self.navigationController?.pushViewController(controller, animated: true)
+                    self.facebookUserInfo(with: token, completion: { user in
+                        let controller = HomeViewController()
+                        controller.user = user
+                        self.navigationController?.pushViewController(controller, animated: true)
+                    })
                 }
             }
         }
     }
     
-    func facebookUserInfo(with token: String) {
+    func facebookUserInfo(with token: String, completion: @escaping (User) -> Void) {
         let request = FBSDKLoginKit.GraphRequest(graphPath: "me",
                                                  parameters: ["fields":"email, name"],
                                                  tokenString: token,
@@ -110,6 +132,16 @@ extension ViewController {
         request.start { (connection, result, error) in
             if let r = result {
                 print("User info object: \(r)")
+                if let resultDictionary = r as? [String : String] {
+                    if let email = resultDictionary["email"] {
+                        if let name = resultDictionary["name"] {
+                            let user = User(userType: .facebook,
+                                            email: email,
+                                            name: name)
+                            completion(user)
+                        }
+                    }
+                }
             } else if let e = error {
                 print("Error: \(e)")
             }
@@ -136,8 +168,8 @@ extension ViewController: GIDSignInDelegate {
         }
         guard let idToken = user.authentication.idToken else { return }
         guard let accessToken = user.authentication.accessToken else { return }
-        let credential = Firebase.GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-        FirebaseAuth.Auth.auth().signIn(with: credential) { (user, error) in
+        let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+        Auth.auth().signIn(with: credential) { (user, error) in
             if let err = error {
                 print("Failed to create a Firebase User with Google account: ", err)
                 return
@@ -146,9 +178,10 @@ extension ViewController: GIDSignInDelegate {
             print("Successfully logged into Firebase with Google", uid)
             
             let controller = HomeViewController()
-//            controller.modalPresentationStyle = .fullScreen
-//            self.present(controller, animated: true)
-            self.navigationController?.pushViewController(controller, animated: true)
+            if let email = user?.user.email, let name = user?.user.displayName {
+                controller.user = User(userType: .google, email: email, name: name)
+                self.navigationController?.pushViewController(controller, animated: true)
+            }
         }
     }
     
