@@ -22,6 +22,8 @@
 		1B527B4B25D063E5006252FE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1B527B4A25D063E5006252FE /* GoogleService-Info.plist */; };
 		1B527B5C25D096DD006252FE /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B527B5B25D096DD006252FE /* HomeViewController.swift */; };
 		1BAE2B2025DDBF9D002A20DE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAE2B1F25DDBF9D002A20DE /* User.swift */; };
+		1BAE2B6125DEB70E002A20DE /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAE2B6025DEB70E002A20DE /* BaseViewController.swift */; };
+		1BAE2B6625DEFE6F002A20DE /* HomeViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAE2B6525DEFE6F002A20DE /* HomeViewCell.swift */; };
 		1BEA02CB25D49C4500B0E13F /* UIButton+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BEA02CA25D49C4500B0E13F /* UIButton+Extension.swift */; };
 		1D045480E834FAB149FC9C67 /* Pods_SocialLoginAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DA541B4F31D0B4446EFA33F /* Pods_SocialLoginAppTests.framework */; };
 		929C3D9B0AF916EFD4493A58 /* Pods_SocialLoginApp_SocialLoginAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E6DE9FC224C140AB15945F5 /* Pods_SocialLoginApp_SocialLoginAppUITests.framework */; };
@@ -62,6 +64,8 @@
 		1B527B4A25D063E5006252FE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1B527B5B25D096DD006252FE /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		1BAE2B1F25DDBF9D002A20DE /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		1BAE2B6025DEB70E002A20DE /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
+		1BAE2B6525DEFE6F002A20DE /* HomeViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewCell.swift; sourceTree = "<group>"; };
 		1BEA02CA25D49C4500B0E13F /* UIButton+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Extension.swift"; sourceTree = "<group>"; };
 		4392963F5E8C268DDDC89EBA /* Pods-SocialLoginApp-SocialLoginAppUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SocialLoginApp-SocialLoginAppUITests.release.xcconfig"; path = "Target Support Files/Pods-SocialLoginApp-SocialLoginAppUITests/Pods-SocialLoginApp-SocialLoginAppUITests.release.xcconfig"; sourceTree = "<group>"; };
 		4B809AF51F30EE24920DC0E4 /* Pods_SocialLoginApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SocialLoginApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -136,12 +140,14 @@
 				1B095E0925CEF9830016F847 /* SceneDelegate.swift */,
 				1B095E0B25CEF9830016F847 /* ViewController.swift */,
 				1B527B5B25D096DD006252FE /* HomeViewController.swift */,
+				1BAE2B6525DEFE6F002A20DE /* HomeViewCell.swift */,
 				1B095E1025CEF9840016F847 /* Assets.xcassets */,
 				1B095E1225CEF9840016F847 /* LaunchScreen.storyboard */,
 				1B095E1525CEF9840016F847 /* Info.plist */,
 				1B527B4A25D063E5006252FE /* GoogleService-Info.plist */,
 				1BEA02CA25D49C4500B0E13F /* UIButton+Extension.swift */,
 				1BAE2B1F25DDBF9D002A20DE /* User.swift */,
+				1BAE2B6025DEB70E002A20DE /* BaseViewController.swift */,
 			);
 			path = SocialLoginApp;
 			sourceTree = "<group>";
@@ -473,10 +479,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				1B095E0C25CEF9830016F847 /* ViewController.swift in Sources */,
+				1BAE2B6625DEFE6F002A20DE /* HomeViewCell.swift in Sources */,
 				1BEA02CB25D49C4500B0E13F /* UIButton+Extension.swift in Sources */,
 				1BAE2B2025DDBF9D002A20DE /* User.swift in Sources */,
 				1B095E0825CEF9830016F847 /* AppDelegate.swift in Sources */,
 				1B095E0A25CEF9830016F847 /* SceneDelegate.swift in Sources */,
+				1BAE2B6125DEB70E002A20DE /* BaseViewController.swift in Sources */,
 				1B527B5C25D096DD006252FE /* HomeViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

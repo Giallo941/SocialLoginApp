@@ -11,7 +11,7 @@ import FBSDKLoginKit
 import Firebase
 import GoogleSignIn
 
-class ViewController: UIViewController {
+class ViewController: BaseViewController {
     
     private lazy var loader = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
     
@@ -50,7 +50,6 @@ class ViewController: UIViewController {
     
     private func makeUI() {
         
-        view.backgroundColor = .white
         loader.center = view.center
         loader.style = .large
         loader.color = .gray
@@ -97,12 +96,49 @@ class ViewController: UIViewController {
                 GIDSignIn.sharedInstance()?.restorePreviousSignIn()
             } else {
                 loader.isHidden = true
-                facebookButton.isHidden = false
                 googleButton.isHidden = false
+                facebookButton.isHidden = false
             }
         }
     }
     
+}
+
+
+extension ViewController: GIDSignInDelegate {
+    
+    @objc func googleLoginButtonClicked() {
+        googleButton.press { finished in
+            GIDSignIn.sharedInstance()?.signIn()
+        }
+    }
+    
+    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
+        if let err = error {
+            print("Failed to log into Google: ", err)
+            return
+        }
+        if let googleUser = user {
+            print("Successfully logged into Google", googleUser)
+        }
+        guard let idToken = user.authentication.idToken else { return }
+        guard let accessToken = user.authentication.accessToken else { return }
+        let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+        Auth.auth().signIn(with: credential) { (user, error) in
+            if let err = error {
+                print("Failed to create a Firebase User with Google account: ", err)
+                return
+            }
+            guard let uid = user?.user.uid else { return }
+            print("Successfully logged into Firebase with Google", uid)
+            
+            let controller = HomeViewController()
+            if let email = user?.user.email, let name = user?.user.displayName {
+                controller.user = User(userType: .google, email: email, name: name)
+                self.navigationController?.pushViewController(controller, animated: true)
+            }
+        }
+    }
 }
 
 extension ViewController {
@@ -144,43 +180,6 @@ extension ViewController {
                 }
             } else if let e = error {
                 print("Error: \(e)")
-            }
-        }
-    }
-    
-}
-
-extension ViewController: GIDSignInDelegate {
-    
-    @objc func googleLoginButtonClicked() {
-        googleButton.press { finished in
-            GIDSignIn.sharedInstance()?.signIn()
-        }
-    }
-    
-    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
-        if let err = error {
-            print("Failed to log into Google: ", err)
-            return
-        }
-        if let googleUser = user {
-            print("Successfully logged into Google", googleUser)
-        }
-        guard let idToken = user.authentication.idToken else { return }
-        guard let accessToken = user.authentication.accessToken else { return }
-        let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-        Auth.auth().signIn(with: credential) { (user, error) in
-            if let err = error {
-                print("Failed to create a Firebase User with Google account: ", err)
-                return
-            }
-            guard let uid = user?.user.uid else { return }
-            print("Successfully logged into Firebase with Google", uid)
-            
-            let controller = HomeViewController()
-            if let email = user?.user.email, let name = user?.user.displayName {
-                controller.user = User(userType: .google, email: email, name: name)
-                self.navigationController?.pushViewController(controller, animated: true)
             }
         }
     }
